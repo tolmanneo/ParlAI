@@ -654,7 +654,7 @@ class BlenderBot3Agent(ModularAgentMixin):
             returned observation is actually a dictionary mapping
             module name to the corresponding observation
         """
-        observations = {}
+        o bservations = {}
         if not isinstance(observation, Message):
             observation = Message(observation)
         for key in ['label_candidates', 'knowledge']:
