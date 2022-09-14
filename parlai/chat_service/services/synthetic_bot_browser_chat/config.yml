@@ -1,17 +1,17 @@
 tasks:
   default:
-    onboard_world: MessengerBotChatOnboardWorld
-    task_world: MessengerBotChatTaskWorld
+    onboard_world: SyntheticBotOnboardWorld
+    task_world: SyntheticBotTaskWorld
     timeout: 1800
     agents_required: 1
 task_name: chatbot
 world_module: parlai.chat_service.services.synthetic_bot_browser_chat.worlds
-overworld: MessengerOverworld
+overworld: SyntheticBotOverworld
 max_workers: 30
 opt:
   debug: True
   models:
-    bb3_3B:      
+    bb3_3B:
       model_file: /home/moe/Documents/GitHub/ParlAI/data/models/bb3/bb3_3B/model
       interactive_mode: True
       no_cuda: False

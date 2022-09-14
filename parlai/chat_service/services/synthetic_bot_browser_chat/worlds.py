@@ -6,26 +6,27 @@
 #
 # py parlai/chat_service/tasks/overworld_demo/run.py --debug --verbose
 
-from parlai.core.worlds import World
+from parlai.core.worlds import World, validate
 from parlai.chat_service.services.messenger.worlds import OnboardWorld
 from parlai.core.agents import create_agent_from_shared
-
+import json
+from parlai.core.message import Message
 
 # ---------- Chatbot demo ---------- #
-class MessengerBotChatOnboardWorld(OnboardWorld):
+class SyntheticBotOnboardWorld(OnboardWorld):
     """
     Example messenger onboarding world for Chatbot Model.
     """
 
     @staticmethod
     def generate_world(opt, agents):
-        return MessengerBotChatOnboardWorld(opt=opt, agent=agents[0])
+        return SyntheticBotOnboardWorld(opt=opt, agent=agents[0])
 
     def parley(self):
         self.episodeDone = True
 
 
-class MessengerBotChatTaskWorld(World):
+class SyntheticBotTaskWorld(World):
     """
     Example one person world that talks to a provided agent (bot).
     """
@@ -65,6 +66,11 @@ class MessengerBotChatTaskWorld(World):
                     'Type [DONE] to finish the chat, or [RESET] to reset the dialogue history.',
                 }
             )
+            bot_context = self.get_context()
+            context_act = Message(
+                {'id': 'context', 'text': bot_context, 'episode_done': False}
+            )
+            self.model.observe(validate(context_act))
             self.first_time = False
         a = self.agent.act()
         if a is not None:
@@ -90,9 +96,19 @@ class MessengerBotChatTaskWorld(World):
     def shutdown(self):
         self.agent.shutdown()
 
+    def get_context(self):
+        file_path = '../../memory_data/bot_context.json'
+        with open(file_path) as f:
+            data = json.load(f)
+        context = []
+        for persona in data['persona']:
+            context.append(f'your persona: {persona}')
+        for c in data['context']:
+            context.append(c)
+        return '\n'.join(context)
 
 # ---------- Overworld -------- #
-class MessengerOverworld(World):
+class SyntheticBotOverworld(World):
     """
     World to handle moving agents to their proper places.
     """
@@ -105,7 +121,7 @@ class MessengerOverworld(World):
 
     @staticmethod
     def generate_world(opt, agents):
-        return MessengerOverworld(opt, agents[0])
+        return SyntheticBotOverworld(opt, agents[0])
 
     @staticmethod
     def assign_roles(agents):
