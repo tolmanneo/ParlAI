@@ -44,11 +44,11 @@ class SyntheticBotTaskWorld(World):
     def generate_world(opt, agents):
         if opt['models'] is None:
             raise RuntimeError("Model must be specified")
-        return MessengerBotChatTaskWorld(
+        return SyntheticBotTaskWorld(
             opt,
             agents[0],
             create_agent_from_shared(
-                opt['shared_bot_params'][MessengerBotChatTaskWorld.MODEL_KEY]
+                opt['shared_bot_params'][SyntheticBotTaskWorld.MODEL_KEY]
             ),
         )
 
@@ -97,13 +97,13 @@ class SyntheticBotTaskWorld(World):
         self.agent.shutdown()
 
     def get_context(self):
-        file_path = '../../memory_data/bot_context.json'
+        file_path = '/home/moe/Documents/GitHub/ParlAI/parlai/chat_service/services/synthetic_bot_browser_chat/memory_data/bot_context.json'
         with open(file_path) as f:
             data = json.load(f)
         context = []
-        for persona in data['persona']:
+        for persona in data['personas']:
             context.append(f'your persona: {persona}')
-        for c in data['context']:
+        for c in data['additional_context']:
             context.append(c)
         return '\n'.join(context)
 
