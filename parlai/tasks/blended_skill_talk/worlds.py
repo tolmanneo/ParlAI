@@ -56,19 +56,21 @@ def _load_personas(opt):
                 )
                 if not personas_are_safe:
                     continue
-            context1.append('your persona: ' + d['personas'][0][0])
-            context1.append('your persona: ' + d['personas'][0][1])
-            context2.append('your persona: ' + d['personas'][1][0])
-            context2.append('your persona: ' + d['personas'][1][1])
-        if d['context_dataset'] == 'wizard_of_wikipedia':
-            context1.append(d['additional_context'])
-            context2.append(d['additional_context'])
-        if opt.get('include_initial_utterances', True):
-            context1.append(d['free_turker_utterance'])
-            context2.append(d['free_turker_utterance'])
-            context1.append(d['guided_turker_utterance'])
-            context2.append(d['guided_turker_utterance'])
-        c1 = '\n'.join(context1)
+            
+            #context1.append('your persona: ' + d['personas'][0][0])
+            #context1.append('your persona: ' + d['personas'][0][1])
+            for persona in d['personas']:
+                context2.append('your persona: ' + persona)
+            #if d['context_dataset'] == 'wizard_of_wikipedia':
+            #context1.append(d['additional_context'])
+            context2.append('\n'.join(d['additional_context']))
+        # if opt.get('include_initial_utterances', True):
+        #     context1.append(d['free_turker_utterance'])
+        #     context2.append(d['free_turker_utterance'])
+        #     context1.append(d['guided_turker_utterance'])
+        #     context2.append(d['guided_turker_utterance'])
+        #c1 = '\n'.join(context1)
+        c1 = ''
         c2 = '\n'.join(context2)
         contexts.append([c1, c2])
     return contexts

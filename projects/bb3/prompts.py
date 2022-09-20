@@ -37,7 +37,7 @@ NO_MEMORY = "no persona"
 PRE_CONTEXT_TOK = "__REPLACE_ME_PRE_CONTEXT__"
 POST_CONTEXT_TOK = "__REPLACE_ME_POST_CONTEXT__"
 
-MAX_PROMPT_LEN = 1912
+MAX_PROMPT_LEN = 900
 
 ###################
 # LIGHT CONSTANTS #
@@ -137,6 +137,13 @@ SEARCH_QUERY_STRING = f"""
 
 
 MEMORY_GENERATOR_STRING = f"""
+{SELF_PREFIX}: The Target app is awesome! Is this what you use to shop?
+{PARTNER_PREFIX}: No, I usually just go to the store and shop. There's a Target near my home.
+{MEMORY_GEN_PREFIX}: {PARTNER_PREFIX} lives near a Target.
+
+{PARTNER_PREFIX}: I just took some great photographs outdoors.
+{MEMORY_GEN_PREFIX}: {NO_MEMORY}
+
 {SELF_PREFIX}: Hello, whats your favorite color? Mine is yellow.
 {PARTNER_PREFIX}: Good, thank you! Tell me a secret about your life.
 {SELF_PREFIX}: I believe in ghosts, and I am fascinated by them.
@@ -147,10 +154,6 @@ MEMORY_GENERATOR_STRING = f"""
 {PARTNER_PREFIX}: Nice! I am in business. I surprised of where I am, really.
 {MEMORY_GEN_PREFIX}: {PARTNER_PREFIX} works in the business sector.
 
-{SELF_PREFIX}: The Target app is awesome! Is this what you use to shop?
-{PARTNER_PREFIX}: No, I usually just go to the store and shop. There's a Target near my home.
-{MEMORY_GEN_PREFIX}: {PARTNER_PREFIX} lives near a Target.
-
 {SELF_PREFIX}: Have you found any luck finding a second job?
 {PARTNER_PREFIX}: Hey, not yet. I'm just so tired all the time. Working nights is hard, and during the day I'm working on the details of trying to open my own restaurant, but that's hard to do when you're as broke as me, but it's my dream, so I'm going to work at it as much as it takes. I'll keep looking for a second job to save up the money. {SELF_PREFIX}'s business doesn't happen to be hiring right now are they?
 {MEMORY_GEN_PREFIX}: {PARTNER_PREFIX} has a job, wants to open my own restaurant, works at night, wants to find a second job, and doesn't have a lot of money.
@@ -158,10 +161,7 @@ MEMORY_GENERATOR_STRING = f"""
 {PARTNER_PREFIX}: Hello. What are you up to today?
 {SELF_PREFIX}: Same as everyday, just sitting at home listening to backstreet boys. You?
 {PARTNER_PREFIX}: Love the band. I'm going rock climbing with my dog
-{MEMORY_GEN_PREFIX}: {PARTNER_PREFIX} is rock climbing with their dog. {PARTNER_PREFIX} loves the Backstreet Boys.
-
-{PARTNER_PREFIX}: I just took some great photographs outdoors.
-{MEMORY_GEN_PREFIX}: {NO_MEMORY}"""
+{MEMORY_GEN_PREFIX}: {PARTNER_PREFIX} is rock climbing with their dog. {PARTNER_PREFIX} loves the Backstreet Boys."""
 
 
 MEMORY_KNOWLEDGE_STRING = f"""
@@ -274,6 +274,12 @@ SEARCH_KNOWLEDGE_STRING = f"""
 
 
 CONTEXTUAL_DIALOGUE_STRING = f"""
+{PARTNER_PREFIX}: I am so exited about the coming world cup final.It is going to be a very exiting game
+{SELF_PREFIX}: I'm not actually much of a soccer fan but the hype is hard to escape!
+{PARTNER_PREFIX}: The world is the biggest sports competition worldwide, right after the Olympics.
+{CONTEXTUAL_KNOWLEDGE_PREFIX}: fan
+{SELF_PREFIX}: Yes, I'm aware, but i'm a much bigger hockey fan.
+
 {SELF_PREFIX}: Hello. What are you doing? I am cooking, I love to cook!
 {PARTNER_PREFIX}: Hello, I am trying to fix my friends computer right now
 {SELF_PREFIX}: Ah. One of my 3 children broke mine.
@@ -309,15 +315,15 @@ CONTEXTUAL_DIALOGUE_STRING = f"""
 {SELF_PREFIX}: I want to get a horse. I love to go horseback riding
 {PARTNER_PREFIX}: I really enjoy toyota cars though
 {CONTEXTUAL_KNOWLEDGE_PREFIX}: concerts
-{SELF_PREFIX}: I'd rather spend my money on going to concerts where I dance hard!
-
-{PARTNER_PREFIX}: I am so exited about the coming world cup final.It is going to be a very exiting game
-{SELF_PREFIX}: I'm not actually much of a soccer fan but the hype is hard to escape!
-{PARTNER_PREFIX}: The world is the biggest sports competition worldwide, right after the Olympics.
-{CONTEXTUAL_KNOWLEDGE_PREFIX}: fan
-{SELF_PREFIX}: Yes, I'm aware, but i'm a much bigger hockey fan."""
+{SELF_PREFIX}: I'd rather spend my money on going to concerts where I dance hard!"""
 
 MEMORY_DIALOGUE_STRING = f"""
+{PARTNER_PREFIX}: Hello friend, how is it going
+{SELF_PREFIX}: I am well and you? I have a creepy ride. Guess
+{PARTNER_PREFIX}: I'm great enjoying the football season
+{MEMORY_KNOWLEDGE_PREFIX}: {SELF_PREFIX} owns a hearse.
+{SELF_PREFIX}: I drive around in a long black hearse an love this season
+
 {PARTNER_PREFIX}: Hi. How are you doing today?
 {SELF_PREFIX}: Hi I am great just finishing up some homework how are you
 {PARTNER_PREFIX}: I'm alright. I just got done writing.
@@ -329,12 +335,6 @@ MEMORY_DIALOGUE_STRING = f"""
 {PARTNER_PREFIX}: Do you own your own company
 {MEMORY_KNOWLEDGE_PREFIX}: {SELF_PREFIX} works part time at a pizza restaurant.
 {SELF_PREFIX}: No still in school work at pizza hut part time
-
-{PARTNER_PREFIX}: Hello friend, how is it going
-{SELF_PREFIX}: I am well and you? I have a creepy ride. Guess
-{PARTNER_PREFIX}: I'm great enjoying the football season
-{MEMORY_KNOWLEDGE_PREFIX}: {SELF_PREFIX} owns a hearse.
-{SELF_PREFIX}: I drive around in a long black hearse an love this season
 
 {PARTNER_PREFIX}: Hello friend, how is it going
 {SELF_PREFIX}: I am well an you? I have a creepy ride. Guess

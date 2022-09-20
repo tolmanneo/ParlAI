@@ -146,6 +146,7 @@ class BB3PromptHistory(SimplePromptHistory):
             self.turns.append(lines.pop(0))
         end_of_context = len(self.turns)
         speakers = itertools.cycle([self.SPEAKER_OTHER, self.SPEAKER_SELF])
+        #self.turns.insert(end_of_context, "***")
         for speaker, line in zip(speakers, lines[::-1]):
             if (
                 '__SILENCE__' in line
@@ -153,7 +154,7 @@ class BB3PromptHistory(SimplePromptHistory):
                 or not line.strip()
             ):
                 continue
-            insert_line = f"{speaker}: {line}" if self.add_speaker_prefixes else line
+            insert_line = line #f"{speaker}: {line}" if self.add_speaker_prefixes else line
             self.turns.insert(end_of_context, insert_line)
 
     def render_flattened(self, turns: List[str]) -> str:
@@ -209,7 +210,7 @@ class SimpleOPTAgent(Agent):
         parser.add_argument(
             '--prompt',
             choices=PROMPTS.keys(),
-            default='none',
+            default='convai2',
             help='Pre-made prompts. Use --raw-prompt to manually write one.',
         )
         parser.add_argument(
