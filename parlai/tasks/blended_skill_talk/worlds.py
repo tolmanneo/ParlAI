@@ -63,7 +63,7 @@ def _load_personas(opt):
                 context2.append('your persona: ' + persona)
             #if d['context_dataset'] == 'wizard_of_wikipedia':
             #context1.append(d['additional_context'])
-            context2.append('\n'.join(d['additional_context']))
+            #context2.append('\n'.join(d['additional_context']))
         # if opt.get('include_initial_utterances', True):
         #     context1.append(d['free_turker_utterance'])
         #     context2.append(d['free_turker_utterance'])

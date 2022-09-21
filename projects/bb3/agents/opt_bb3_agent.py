@@ -248,6 +248,7 @@ class BlenderBot3Agent(R2C2Agent):
         """
         self.agents[Module.MEMORY_DECISION].reset()
 
+
         original_text = ag_obs['text']
         self_memory_text, partner_memory_text = '', ''
         self_memories = [

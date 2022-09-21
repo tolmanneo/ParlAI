@@ -7,6 +7,7 @@
 import itertools
 import torch
 from typing import Optional, List, Dict, Any
+import json
 
 from parlai.core.agents import Agent, create_agent
 from parlai.core.dict import DictionaryAgent
@@ -102,15 +103,29 @@ class BB3PromptHistory(SimplePromptHistory):
             else:
                 self.prompt = self.module.opt_prompt()
 
+        # self.shots = self.module.opt_shots()
+        # if opt.get('num_shots') is not None:
+        #     effective_shots = opt['num_shots'] if opt['num_shots'] >= 0 else 100000
+        #     if effective_shots == 0:
+        #         self.shots = ''
+        #     elif effective_shots > 0:
+        #         self.shots = (
+        #             '\n\n'.join(self.shots.split('\n\n')[:effective_shots]) + '\n\n'
+        #         )
         self.shots = self.module.opt_shots()
-        if opt.get('num_shots') is not None:
-            effective_shots = opt['num_shots'] if opt['num_shots'] >= 0 else 100000
-            if effective_shots == 0:
-                self.shots = ''
-            elif effective_shots > 0:
-                self.shots = (
-                    '\n\n'.join(self.shots.split('\n\n')[:effective_shots]) + '\n\n'
-                )
+        module_shots = {
+                        #'MEMORY_DECISION': 3,
+                        #'MEMORY_GENERATOR': 5,
+                        #''
+                        }
+        if self.module.name in module_shots:
+            effective_shots =  module_shots[self.module.name]
+            self.shots = ('\n\n'.join(self.shots.split('\n\n')[:effective_shots]) + '\n\n')       
+        else:
+            self.shots = ''
+        with open('/home/moe/Documents/GitHub/ParlAI/data/blended_skill_talk/valid.json', 'r') as f:
+            data = json.load(f)
+            self.context_story = '\n'.join(data[0]['additional_context'])
         self.final_prefix = f"{self.module.opt_final_prefix()}:"
         self.pre_context_tok = self.module.opt_pre_context_tok()
         self.post_context_tok = self.module.opt_post_context_tok()
@@ -146,7 +161,6 @@ class BB3PromptHistory(SimplePromptHistory):
             self.turns.append(lines.pop(0))
         end_of_context = len(self.turns)
         speakers = itertools.cycle([self.SPEAKER_OTHER, self.SPEAKER_SELF])
-        #self.turns.insert(end_of_context, "***")
         for speaker, line in zip(speakers, lines[::-1]):
             if (
                 '__SILENCE__' in line
@@ -154,7 +168,7 @@ class BB3PromptHistory(SimplePromptHistory):
                 or not line.strip()
             ):
                 continue
-            insert_line = line #f"{speaker}: {line}" if self.add_speaker_prefixes else line
+            insert_line = f"{speaker}: {line}" if self.add_speaker_prefixes else line
             self.turns.insert(end_of_context, insert_line)
 
     def render_flattened(self, turns: List[str]) -> str:
@@ -186,7 +200,19 @@ class BB3PromptHistory(SimplePromptHistory):
         pre_context = f"{self.pre_context_tok}\n" if self.pre_context_tok else ''
         style = f"\n{self.style_string}" if self.style_string else ''
         shots = self.shots if self.shots else ''
-        final = f'{self.prompt}{shots}{pre_context}{flattened_turns}{post_context}{style}\n{self.final_prefix}'
+        if self.module.name in ['MEMORY_DECISION', 
+                                #'MEMORY_GENERATOR', 
+                                #'MEMORY_KNOWLEDGE', 
+                                #'CONTEXTUAL_KNOWLEDGE', 
+                                #'SEARCH_KNOWLEDGE', 
+                                'CONTEXTUAL_DIALOGUE'
+                                #'MEMORY_DIALOGUE'
+                                #'VANILLA_DIALOGUE'
+                                ]:
+            context_story = ''
+        else:
+            context_story = ''#self.context_story
+        final = f'{self.prompt}{context_story}{shots}{pre_context}{flattened_turns}{post_context}{style}\n{self.final_prefix}'
         return final
 
     def render_prompt(self) -> str:
