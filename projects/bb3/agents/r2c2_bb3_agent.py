@@ -425,7 +425,8 @@ class BlenderBot3Agent(ModularAgentMixin):
             self.agents[Module.SEARCH_KNOWLEDGE] = agent
 
         self.memories = []
-        self.memories.append("Person 2's Persona: My name is Kamui.")
+        self.memories.append(MemoryUtils.add_memory_prefix("My name is Kamui", "self", 'OPT'))
+        #self.memories.append(MemoryUtils.add_memory_prefix("I am a chatbot", "partner", 'OPT')the Titans is the most cruel race in the universe.")
         self.in_session_memories = set()
         self.search_knowledge_responses = ['__SILENCE__']
         self.memory_knowledge_responses = ['__SILENCE__']

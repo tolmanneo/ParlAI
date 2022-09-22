@@ -114,15 +114,17 @@ class BB3PromptHistory(SimplePromptHistory):
         #         )
         self.shots = self.module.opt_shots()
         module_shots = {
-                        #'MEMORY_DECISION': 3,
+                        'MEMORY_DECISION': 9,
                         #'MEMORY_GENERATOR': 5,
                         #''
                         }
         if self.module.name in module_shots:
             effective_shots =  module_shots[self.module.name]
-            self.shots = ('\n\n'.join(self.shots.split('\n\n')[:effective_shots]) + '\n\n')       
         else:
-            self.shots = ''
+            effective_shots = 0
+        self.shots = ('\n\n'.join(self.shots.split('\n\n')[:effective_shots]) + '\n\n')       
+        #else:
+            #self.shots = ''
         with open('/home/moe/Documents/GitHub/ParlAI/data/blended_skill_talk/valid.json', 'r') as f:
             data = json.load(f)
             self.context_story = '\n'.join(data[0]['additional_context'])
@@ -200,19 +202,7 @@ class BB3PromptHistory(SimplePromptHistory):
         pre_context = f"{self.pre_context_tok}\n" if self.pre_context_tok else ''
         style = f"\n{self.style_string}" if self.style_string else ''
         shots = self.shots if self.shots else ''
-        if self.module.name in ['MEMORY_DECISION', 
-                                #'MEMORY_GENERATOR', 
-                                #'MEMORY_KNOWLEDGE', 
-                                #'CONTEXTUAL_KNOWLEDGE', 
-                                #'SEARCH_KNOWLEDGE', 
-                                'CONTEXTUAL_DIALOGUE'
-                                #'MEMORY_DIALOGUE'
-                                #'VANILLA_DIALOGUE'
-                                ]:
-            context_story = ''
-        else:
-            context_story = ''#self.context_story
-        final = f'{self.prompt}{context_story}{shots}{pre_context}{flattened_turns}{post_context}{style}\n{self.final_prefix}'
+        final = f'{self.prompt}{shots}{pre_context}{flattened_turns}{post_context}{style}\n{self.final_prefix}'
         return final
 
     def render_prompt(self) -> str:
