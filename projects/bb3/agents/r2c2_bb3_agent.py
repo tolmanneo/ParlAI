@@ -459,6 +459,9 @@ class BlenderBot3Agent(ModularAgentMixin):
             self.dictionary = agent.dict
         # Memories is a mapping from memory to turns_since_used.
         self.memories: Dict[str, int] = {}
+        self.memories["Person 2's name is Kamui"] = 1
+        self.memories["Person 2 knows Spark Era is a inter galatic war."] = 1
+        
         self.in_session_memories = set()
         self.search_knowledge_responses = ['__SILENCE__']
         self.memory_knowledge_responses = ['__SILENCE__']

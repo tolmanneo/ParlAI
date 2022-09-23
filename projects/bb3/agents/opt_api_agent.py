@@ -31,13 +31,17 @@ PROMPTS = {
 
 
 class SimplePromptHistory(object):
-    SPEAKER_SELF = "Person 2"
-    SPEAKER_OTHER = "Person 1"
+    SPEAKER_SELF = "RoboChoom"
+    SPEAKER_OTHER = "Human"
 
-    def __init__(self, prompt: Optional[str] = None):
+    def __init__(self, 
+        prompt: Optional[str] = None, 
+        dictionary: Optional[DictionaryAgent] = None,):
         self.turns = []
         self.prompt = prompt
         self._will_clear = False
+        self.max_prompt_len = PROMPT.MAX_PROMPT_LEN
+        self.dictionary = dictionary
 
     def observe_self(self, text):
         self.turns.append(f'{self.SPEAKER_SELF}: {text}')
@@ -56,7 +60,21 @@ class SimplePromptHistory(object):
             self.turns.insert(end_of_context, f'{speaker}: {line}')
 
     def render_prompt(self) -> str:
-        flattened = "\n".join(self.turns + [f'{self.SPEAKER_SELF}:'])
+        assert self.dictionary is not None
+        turn_idx = 0
+        flattened = self.render_flattened(self.turns)
+        while len(self.dictionary.txt2vec(flattened)) >= self.max_prompt_len:
+            turn_idx += 1
+            flattened = self.render_flattened(self.turns[turn_idx:])
+        if True:
+            #logging.info(f'Module: {self.module}')
+            logging.info(flattened)
+            logging.info(len(self.turns[turn_idx:]))
+        return flattened
+
+    def render_flattened(self, turns) -> str:
+
+        flattened = "\n".join(turns + [f'{self.SPEAKER_SELF}:'])
         if self.prompt:
             flattened = f'{self.prompt}{flattened}'
         return flattened
@@ -324,8 +342,15 @@ class SimpleOPTAgent(Agent):
         if shared is None:
             logging.debug(f"GPT-Z setting prompt to '{prompt}'")
         self.passed_in_prompt = prompt
-        self.history = SimplePromptHistory(prompt=prompt)
+        if not shared:
+            self.dictionary = DictionaryAgent(
+                {**ParlaiParser(True, True).parse_args([]), 'dict_tokenizer': 'gpt2'}
+            )
+        else:
+            self.dictionary = shared['dictionary']
+        self.history = SimplePromptHistory(prompt=prompt, dictionary=self.dictionary)
         self.request_delay = opt.get('request_delay', 0.5)
+
 
     def observe(self, obs):
         if not obs.get('batch_padding'):
@@ -344,6 +369,7 @@ class SimpleOPTAgent(Agent):
 
     def act(self):
         response = self.batch_act([self.observation])[0]
+        response.force_set('text', response['text'].split('\n')[0])
         self.self_observe(response)
         return response
 
@@ -440,7 +466,7 @@ class SimpleOPTAgent(Agent):
         if not self.opt['skip_generation']:
             if self.opt['inference'] == 'greedy':
                 self.opt['beam_size'] = 1
-                self.opt['topp'] = -1.0
+                self.opt['topp'] = 0.9 #-1.0
             elif self.opt['inference'] == 'beam':
                 self.opt['topp'] = -1.0
             if 'factual_nucleus' not in self.opt['inference']:
@@ -493,6 +519,11 @@ class SimpleOPTAgent(Agent):
             else:
                 messages_out.append(messages.pop(0))
         return messages_out
+
+    def share(self):
+        shared = super().share()
+        shared['dictionary'] = self.dictionary
+        return shared
 
     def self_observe(self, self_message):
         if 'labels' in self.observation:
