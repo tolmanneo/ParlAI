@@ -9,7 +9,7 @@
 from parlai.core.worlds import World
 from parlai.chat_service.services.messenger.worlds import OnboardWorld
 from parlai.core.agents import create_agent_from_shared
-
+import numpy as np
 
 # ---------- Chatbot demo ---------- #
 class MessengerBotChatOnboardWorld(OnboardWorld):
@@ -67,20 +67,12 @@ class MessengerBotChatTaskWorld(World):
         a = self.agent.act()
         if a is not None:
             if '[DONE]' in a['text']:
+                with open(f'/home/moe/userxx{np.random.randint()}.log', 'a+') as f:
+                    f.write('\n'.join(self.model.turns))
                 self.episodeDone = True
-            elif '[RESET]' in a['text']:
-                self.model.reset()
-                self.agent.observe({"text": "[History Cleared]", "episode_done": False})
-            else:
-                print("===act====")
-                print(a)
-                print("~~~~~~~~~~~")
-                self.model.observe(a)
-                response = self.model.act()
-                print("===response====")
-                print(response)
-                print("~~~~~~~~~~~")
-                self.agent.observe(response)
+            self.model.observe(a)
+            response = self.model.act()
+            self.agent.observe(response)
 
     def episode_done(self):
         return self.episodeDone
@@ -114,6 +106,6 @@ class MessengerOverworld(World):
         return self.episodeDone
 
     def parley(self):
-        self.episodeDone = True
-        return 'default'
+            self.episodeDone = True
+            return 'default'
 

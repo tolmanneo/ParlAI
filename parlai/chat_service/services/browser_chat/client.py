@@ -10,7 +10,7 @@ import threading
 from parlai.core.params import ParlaiParser
 from parlai.scripts.interactive_web import WEB_HTML, STYLE_SHEET, FONT_AWESOME
 from http.server import BaseHTTPRequestHandler, HTTPServer
-
+import sys
 
 SHARED = {}
 
@@ -30,11 +30,16 @@ class BrowserHandler(BaseHTTPRequestHandler):
 
     def _interactive_running(self, reply_text):
         data = {}
-        data['text'] = reply_text.decode('utf-8')
+        if b'{' not in reply_text: 
+            data['text'] = reply_text.decode('utf-8')
+        else:
+            data = json.loads(reply_text)
+        #print(data)
         if data['text'] == "[DONE]":
             print('[ Closing socket... ]')
             SHARED['ws'].close()
-            SHARED['wb'].shutdown()
+            sys.exit()
+            #SHARED['wb'].shutdown()
         json_data = json.dumps(data)
         SHARED['ws'].send(json_data)
 
@@ -63,6 +68,8 @@ class BrowserHandler(BaseHTTPRequestHandler):
             message_available.clear()
             json_str = json.dumps(model_response)
             self.wfile.write(bytes(json_str, 'utf-8'))
+            return model_response #{'text': model_response['text']}
+
         elif self.path == '/reset':
             self._interactive_running(b"[RESET]")
             self.send_response(200)
@@ -179,7 +186,6 @@ def setup_args():
     )
 
     return parser.parse_args()
-
 
 if __name__ == "__main__":
     opt = setup_args()
