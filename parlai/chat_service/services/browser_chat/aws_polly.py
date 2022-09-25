@@ -3,7 +3,7 @@ import boto3
 from botocore.exceptions import BotoCoreError, ClientError
 from uuid import uuid4
 import os
-from constants import AWS_S3_VOICE_OUTPUT, LOCAL_VOICE_OUTPUT
+from constants import AWS_S3_VOICE_OUTPUT, LOCAL_VOICE_OUTPUT, AWS_VOICE_NAME
 
 polly_client = boto3.client('polly', region_name = 'us-west-2')
 s3_client = boto3.client('s3', region_name = 'us-west-2')
@@ -18,7 +18,7 @@ def get_text_to_voice(text):
         # Request speech synthesis
         response = polly_client.synthesize_speech(Text=text, OutputFormat="mp3",
                                                   Engine='neural',
-                                                  VoiceId='Brian')
+                                                  VoiceId=AWS_VOICE_NAME)
         code = str(uuid4())
         file_path = f'{dir_path}/{code}.mp3'
         with closing(response['AudioStream']) as stream:

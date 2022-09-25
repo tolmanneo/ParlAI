@@ -2,10 +2,12 @@ import requests
 import time
 
 data = {
-    'userId': 'toan',
-    'text': 'what is your name again',
+    'userId': 'moses',
+    'text': "hello, what is your name? How come you floatting around?",
     'dateTime': time.time()
 }
+
+start = time.time()
 r = requests.post('http://127.0.0.1:5000/client/talktoai',
                   json=data,
                   timeout=10000000)
@@ -19,3 +21,5 @@ r = requests.post('http://127.0.0.1:5000/client/talktoai',
 
 print(r)
 print(r.json())
+stop = time.time()
+print(stop - start)
