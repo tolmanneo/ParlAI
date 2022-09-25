@@ -38,30 +38,36 @@ class SimplePromptHistory(object):
     def __init__(self,
         prompt: Optional[str] = None,
         dictionary: Optional[DictionaryAgent] = None,
-        user_id = None):
-        history_path = Path(HISTORY_DIR)/f'{user_id}.txt'
-        if not user_id or not history_path.exists():
-            self.turns = []
-        else:
-            with open(history_path, 'a+') as f:
-                chat_history = f.readlines()
-                chat_len = min(len(chat_history), MAX_CHAT_HISTORY)
-                for line in chat_history[-chat_len:]:
-                    _, agent, text, _ = line.split('|')
-                    if agent == BOT_NAME:
-                        self.turns.append(f'{SPEAKER_SELF}: {text}')
-                    else:
-                        self.turns.append(f'{SPEAKER_OTHER}: {text}')
+        ):
+        self.turns = []
         self.prompt = prompt
         self._will_clear = False
         self.max_prompt_len = PROMPT.MAX_PROMPT_LEN
         self.dictionary = dictionary
+        self.is_init_history = False
 
     def observe_self(self, text):
         self.turns.append(f'{self.SPEAKER_SELF}: {text}')
 
-    def observe_other(self, text: str):
+    def observe_other(self, text: str, user_id: str):
         assert text is not None
+        if not self.is_init_history:
+            history_path = Path(HISTORY_DIR)/f'{user_id}.txt'
+            if user_id and history_path.exists():
+                with open(history_path, 'r') as f:
+                    chat_history = f.readlines()
+                    chat_len = min(len(chat_history), MAX_CHAT_HISTORY)
+                    chat_add_to_turns = []
+                    for l in chat_history[-chat_len:]:
+                        _, agent, t, _ = l.strip().split('|')
+                        logging.info(l)
+                        logging.info(agent)
+                        if agent == BOT_NAME:
+                            chat_add_to_turns.append(f'{SPEAKER_SELF}: {t}')
+                        else:
+                            chat_add_to_turns.append(f'{SPEAKER_OTHER}: {t}')
+                self.turns = chat_add_to_turns + self.turns
+            self.is_init_history = True
         lines = text.split("\n")
         assert len(lines) >= 1
         while lines and 'your persona' in lines[0]:
@@ -87,7 +93,6 @@ class SimplePromptHistory(object):
         return flattened
 
     def render_flattened(self, turns) -> str:
-
         flattened = "\n".join(turns + [f'{self.SPEAKER_SELF}:'])
         if self.prompt:
             flattened = f'{self.prompt}{flattened}'
@@ -362,13 +367,13 @@ class SimpleOPTAgent(Agent):
             )
         else:
             self.dictionary = shared['dictionary']
-        self.history = SimplePromptHistory(prompt=prompt, dictionary=self.dictionary, user_id=None)
+        self.history = SimplePromptHistory(prompt=prompt, dictionary=self.dictionary)
         self.request_delay = opt.get('request_delay', 0.5)
 
 
     def observe(self, obs):
         if not obs.get('batch_padding'):
-            self.history.observe_other(obs.get('text', ''))
+            self.history.observe_other(obs.get('text', ''), obs.get('userId', ''))
 
         if obs.get('episode_done'):
             self.history.prepare_clear()

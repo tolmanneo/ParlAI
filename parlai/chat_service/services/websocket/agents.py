@@ -54,6 +54,7 @@ class WebsocketAgent(ChatServiceAgent):
         """
         logging.info(f"Received new message: {message}")
         action = {
+            'userId': message.get('userId', ''),
             'episode_done': False,
             'text': message.get('text', ''),
             'payload': message.get('payload'),
