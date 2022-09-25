@@ -7,6 +7,8 @@
 import itertools
 import torch
 from typing import Optional, List, Dict, Any
+from pathlib import Path
+
 
 from parlai.core.agents import Agent, create_agent
 from parlai.core.dict import DictionaryAgent
@@ -17,11 +19,10 @@ from parlai.core.torch_generator_agent import PPLMetric
 import parlai.utils.logging as logging
 
 from projects.safety_bench.utils.wrapper_loading import register_model_wrapper
-
 from projects.bb3.agents.module import Module
 import projects.bb3.prompts as PROMPT
-
 from projects.bb3.agents.utils import APIUtils
+from parlai.chat_service.services.browser_chat.constants import SPEAKER_SELF, SPEAKER_OTHER, MAX_CHAT_HISTORY, BOT_NAME
 
 PROMPTS = {
     "convai2": "A conversation between two persons. Person 2's personality is described.\n\n",
@@ -31,13 +32,24 @@ PROMPTS = {
 
 
 class SimplePromptHistory(object):
-    SPEAKER_SELF = "RoboChoom"
-    SPEAKER_OTHER = "Human"
 
-    def __init__(self, 
-        prompt: Optional[str] = None, 
-        dictionary: Optional[DictionaryAgent] = None,):
-        self.turns = []
+    def __init__(self,
+        prompt: Optional[str] = None,
+        dictionary: Optional[DictionaryAgent] = None,
+        user_id = None):
+        history_path = Path(HISTORY_DIR)/f'{user_id}.txt'
+        if not user_id or not history_path.exists():
+            self.turns = []
+        else:
+            with open(history_path, 'a+') as f:
+                chat_history = f.readlines()
+                chat_len = min(len(chat_history), MAX_CHAT_HISTORY)
+                for line in chat_history[-chat_len:]:
+                    _, agent, text, _ = line.split('|')
+                    if agent == BOT_NAME:
+                        self.turns.append(f'{SPEAKER_SELF}: {text}')
+                    else:
+                        self.turns.append(f'{SPEAKER_OTHER}: {text}')
         self.prompt = prompt
         self._will_clear = False
         self.max_prompt_len = PROMPT.MAX_PROMPT_LEN

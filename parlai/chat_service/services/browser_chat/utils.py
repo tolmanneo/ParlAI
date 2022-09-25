@@ -24,7 +24,7 @@ def get_chat_record(user_id, data_number):
         with open(Path(HISTORY_DIR)/f'{user_id}.txt', 'r') as f:
             chat_history = f.readlines()
             chat_len = min(len(chat_history), data_number)
-            for line in (chat_history[-chat_len:]):
+            for line in chat_history[-chat_len:]:
                 dt, agent, text, voice = line.split('|')
                 chat_line = {
                     'dateTime': dt,

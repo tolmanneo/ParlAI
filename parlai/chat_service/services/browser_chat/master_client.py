@@ -2,9 +2,9 @@ from flask import Flask, request
 import requests
 import time
 from subprocess import Popen, PIPE
-from parlai.chat_service.services.browser_chat.aws_transcribe import get_voice_to_text
-from parlai.chat_service.services.browser_chat.aws_polly import get_text_to_voice
-from parlai.chat_service.services.browser_chat.utils import get_chat_record, get_unused_port
+from aws_transcribe import get_voice_to_text
+from aws_polly import get_text_to_voice
+from utils import get_chat_record, get_unused_port
 import time
 from constants import MAX_CLIENT_IDLE_TIME, BOT_NAME, HISTORY_DIR
 from pathlib import Path
