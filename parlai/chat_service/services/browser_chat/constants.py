@@ -12,4 +12,4 @@ AWS_S3_VOICE_OUTPUT = 'ai-voice-output'
 AWS_VOICE_NAME = 'Brian'
 STORY_CONTEXT = f'{os.path.dirname(__file__)}/text.txt'
 LOCAL_VOICE_OUTPUT = f"{os.getenv('HOME')}/user_voice"
-NLP_SERVER = 'http://localhost:30001'
+NLP_SERVER = 'http://127.0.0.1:30001'

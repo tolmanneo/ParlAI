@@ -24,7 +24,7 @@ def scheduled():
     for _, port_ts in active_userid_port.items():
         port, ts_user_id = port_ts.values()
         if (ts - ts_user_id) > MAX_CLIENT_IDLE_TIME:
-            request.post(f"http://localhost:{port}/interact",
+            request.post(f"http://127.0.0.1:{port}/interact",
                          json={'text': '[DONE]'})
 
 
@@ -44,18 +44,20 @@ def talktoai():
         port = get_unused_port()
         Popen(['python', 'client.py', '--port', f'{NLP_PORT}', '--serving-port', str(port)])
         active_userid_port[user_id] = port
-        time.sleep(0.5)
+        print('sleep 2 sec')
+        time.sleep(2)
     else:
         port = active_userid_port[user_id]
 
-    r = requests.post(f"http://localhost:{port}/interact",
+    print(f'come here, port created is: {port}')
+    r = requests.post(f"http://127.0.0.1:{port}/interact",
                         json={'userId': f'{user_id}',
                               'text': f'{user_text}',
                               'dateTime': f'{user_dt}'},
                         timeout=10000000)
 
     if r.json()['text'] == f'is_connected':
-        r = requests.post(f"http://localhost:{port}/interact",
+        r = requests.post(f"http://127.0.0.1:{port}/interact",
                             json={'userId': f'{user_id}',
                                   'text': f'{user_text}',
                                   'dateTime': f'{user_dt}'},

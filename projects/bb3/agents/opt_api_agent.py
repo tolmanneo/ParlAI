@@ -528,7 +528,7 @@ class SimpleOPTAgent(Agent):
                         m['text'] = self.rank_samples(r)
                     else:
                         m['text'] = r['choices'][0]['text'].strip()
-                    m['logprobs'] = sum(r['choices'][0]['logprobs']['token_logprobs'])
+                    #m['logprobs'] = sum(r['choices'][0]['logprobs']['token_logprobs'])
 
         # we might have batch padding that we skipped earlier. collate it back.
         messages_out = []
