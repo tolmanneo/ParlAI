@@ -69,9 +69,9 @@ def talktoai():
 
     with open(Path(HISTORY_DIR)/f'{user_id}.txt', 'a+') as f:
         # write user
-        f.write(f'{user_dt}{user_id}|{user_text}|{user_voice}\n')
+        f.write(f'{user_dt}|{user_id}|{user_text}|{user_voice}\n')
         # write bot
-        f.write(f'{ai_dt}{BOT_NAME}|{ai_text}|{ai_voice}]n')
+        f.write(f'{ai_dt}|{BOT_NAME}|{ai_text}|{ai_voice}\n')
 
     return result
 
