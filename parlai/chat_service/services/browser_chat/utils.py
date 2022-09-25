@@ -25,9 +25,9 @@ def get_chat_record(user_id, data_number):
             chat_history = f.readlines()
             chat_len = min(len(chat_history), data_number)
             for line in chat_history[-chat_len:]:
-                dt, agent, text, voice = line.split('|')
+                dt, agent, text, voice = line.strip().split('|')
                 chat_line = {
-                    'dateTime': dt,
+                    'dateTime': float(dt),
                     'from': agent}
                 if voice:
                     chat_line['voice'] = voice
