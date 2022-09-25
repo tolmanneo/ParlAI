@@ -9,5 +9,6 @@ SPEAKER_OTHER = 'Human'
 NLP_PORT = 10002
 AWS_S3_VOICE_INPUT = 'ai-voice-input'
 AWS_S3_VOICE_OUTPUT = 'ai-voice-output'
-STORY_CONTEXT = f'{os.path.dirname(__file__)}text.txt'
+STORY_CONTEXT = f'{os.path.dirname(__file__)}/text.txt'
 LOCAL_VOICE_OUTPUT = f"{os.getenv('HOME')}/user_voice"
+NLP_SERVER = 'http://localhost:30001'

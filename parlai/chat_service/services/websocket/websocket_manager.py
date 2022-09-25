@@ -21,6 +21,7 @@ import tornado
 from tornado.options import options
 from projects.bb3.agents.opt_api_agent import SimpleOPTAgent
 from parlai.core.params import ParlaiParser
+from parlai.chat_service.services.browser_chat.constants import NLP_SERVER, STORY_CONTEXT
 
 class WebsocketManager(ChatServiceManager):
     """
@@ -81,7 +82,7 @@ class WebsocketManager(ChatServiceManager):
                     model_opt['override'] = override[0]
                 #opt = SimpleOPTAgent.add_cmdline_args(ParlaiParser())
                 opt= {}
-                opt['server'] = "http://localhost:30001"
+                opt['server'] = NLP_SERVER
                 opt['max_retry_api'] = -1
                 opt['server_timeout'] = 600
                 opt['skip_generation'] = False
@@ -99,7 +100,7 @@ class WebsocketManager(ChatServiceManager):
                 opt['alpha_frequency_src'] = 0.5
                 opt['penalize_repetitions'] = True
                 opt['penalize_ctxt_repetitions'] = True
-                with open('/home/moe/Documents/GitHub/ParlAI/parlai/chat_service/services/browser_chat/text.txt', 'r') as f:
+                with open(STORY_CONTEXT, 'r') as f:
                     opt['raw_prompt'] = ''.join(f.readlines())
                 model_params[model] =  SimpleOPTAgent(opt).share()#create_agent(model_opt).share()
                 model_info[model] = {'override': override}
