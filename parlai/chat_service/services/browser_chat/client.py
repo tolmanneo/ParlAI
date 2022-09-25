@@ -30,7 +30,7 @@ class BrowserHandler(BaseHTTPRequestHandler):
 
     def _interactive_running(self, reply_text):
         data = {}
-        if b'{' not in reply_text: 
+        if b'{' not in reply_text:
             data['text'] = reply_text.decode('utf-8')
         else:
             data = json.loads(reply_text)
@@ -62,13 +62,13 @@ class BrowserHandler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
-            model_response = {'id': 'Model', 'episode_done': False}
             message_available.wait()
-            model_response['text'] = new_message
+            text_response = {}
+            text_response['text'] = new_message
             message_available.clear()
-            json_str = json.dumps(model_response)
+            json_str = json.dumps(text_response)
             self.wfile.write(bytes(json_str, 'utf-8'))
-            return model_response #{'text': model_response['text']}
+            return text_response # {'text': model_response['text']}
 
         elif self.path == '/reset':
             self._interactive_running(b"[RESET]")

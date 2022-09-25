@@ -6,7 +6,7 @@ import json
 from urllib.request import urlopen
 
 transcribe_client = boto3.client('transcribe', region_name = 'us-west-2')
-def transcribe_file(file_uri):
+def get_voice_to_text(file_uri):
     file_uri_p = Path(file_uri)
     job_name = f'job-{file_uri_p.stem}-{uuid4()}'
     transcribe_client.start_transcription_job(

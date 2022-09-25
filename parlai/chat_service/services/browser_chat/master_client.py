@@ -1,73 +1,87 @@
-from flask import Flask, redirect, url_for, request, g
+from flask import Flask, request
 import requests
-import socket
 import time
-from subprocess import Popen, PIPE 
-from parlai.chat_service.services.browser_chat.aws_transcribe import transcribe_file
-from parlai.chat_service.services.browser_chat.aws_polly import get_voice
+from subprocess import Popen, PIPE
+from parlai.chat_service.services.browser_chat.aws_transcribe import get_voice_to_text
+from parlai.chat_service.services.browser_chat.aws_polly import get_text_to_voice
+from parlai.chat_service.services.browser_chat.utils import get_chat_record, get_unused_port
+import time
+from constants import MAX_CLIENT_IDLE_TIME, BOT_NAME, HISTORY_DIR
+from pathlib import Path
 
 app = Flask(__name__)
+
+# user_id: port, timestamp_latest_update
 active_userid_port = {}
 
-def get_unused_port():
-    """
-    Get an empty port for the Pyro nameservr by opening a socket on random port,
-    getting port number, and closing it [not atomic, so race condition is possible...]
-    Might be better to open with port 0 (random) and then figure out what port it used.
-    """
-    so = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    so.bind(('localhost', 0))
-    _, port = so.getsockname()
-    so.close()
-    return port
+# run a cron job every xxx min to clear up idle users
 
-@app.route('/client_chat', methods = ['POST'])
-def client_chat():
+@app.cli.command()
+def scheduled():
+    ts = time()
+    for _, port_ts in active_userid_port.items():
+        port, ts_user_id = port_ts.values()
+        if (ts - ts_user_id) > MAX_CLIENT_IDLE_TIME:
+            request.post(f"http://localhost:{port}/interact",
+                         json={'text': '[DONE]'})
+
+
+@app.route('client/talktoai', methods = ['POST'])
+def talktoai():
+    # form request
+    user_id = request.json['userId']
+    user_dt = request.json['dateTime']
     if 'voice' in request.json:
-        print(request.json['voice'])
-        text = transcribe_file(request.json['voice'])
+        user_voice = request.json['voice']
+        user_text = get_voice_to_text(user_voice)
     else:
-        text = request.json['text']
-    userid = request.json['userid']
-    if not active_userid_port.get(userid, None):
-        port = get_unused_port()
-        print(port)
-        Popen(['python', 'client.py', '--port', '10002', '--serving-port', str(port)])
-        #create_client(port=10002, serving_port=port)
-        active_userid_port[userid] = port
-        time.sleep(1)
-        #return {'status': 'connected'}
-    else:
-        port = active_userid_port[userid]
+        user_voice = ''
+        user_text = request.json['text']
 
-    try:
+    if not active_userid_port.get(user_id, None):
+        port = get_unused_port()
+        Popen(['python', 'client.py', '--port', '10002', '--serving-port', str(port)])
+        active_userid_port[user_id] = port
+        time.sleep(0.5)
+    else:
+        port = active_userid_port[user_id]
+
+    r = requests.post(f"http://localhost:{port}/interact",
+                        json={'userId': f'{user_id}',
+                              'text': f'{user_text}',
+                              'dateTime': f'{user_dt}'},
+                        timeout=10000000)
+
+    if r.json()['text'] == f'is_connected':
         r = requests.post(f"http://localhost:{port}/interact",
-                            json={'text': f'{text}'},
-                            timeout=10000000)
-    except requests.exceptions.ConnectionError:
-        return {"status": f"close session with {userid}"}
-    result = {}
-    result['text'] = r.json()['text']
-    if result['text'] == '.-.beep. ...-boop. -.beep--. .':
-        result['voice'] = None
-    else:
-        result['voice'] = get_voice(result['text'])
-    print(result)
+                            json={'userId': f'{user_id}',
+                                  'text': f'{user_text}',
+                                  'dateTime': f'{user_dt}'},
+                        timeout=10000000)
+
+    result = r.json()
+    ai_text = result['text']
+    result['userId'] = BOT_NAME
+    ai_dt = result['dateTime'] = time.time()
+    ai_voice = result['voice'] = get_text_to_voice(result['text'])
+
+    with open(Path(HISTORY_DIR)/f'{user_id}.txt', 'a+') as f:
+        # write user
+        f.writeline(f'{user_dt}{user_id}|{user_text}|{user_voice}')
+        # write bot
+        f.writeline(f'{ai_dt}{BOT_NAME}|{ai_text}|{ai_voice}')
+
     return result
-    
-@app.route('/client_close', methods = ['POST'])
-def client_close():
-    userid = request.json['userid']
-    port = active_userid_port.get(userid, None)
-    if port:
-        try:
-            active_userid_port[userid] = None
-            r = requests.post(f"http://localhost:{port}/interact",
-                              json={'text': '[DONE]'})
-        except requests.exceptions.ConnectionError:
-            return {"status": f"close session with {userid}"}
-    else:
-        return {"status": f"no session with {userid}"}
+
+
+@app.route('client/retrievehistory', methods = ['GET'])
+def retrievehistory():
+    user_id = request.json['userId']
+    data_number = request.json.get('dataNumber', 0)
+    chat_record = get_chat_record(user_id, data_number)
+    return {"userId": user_id,
+            "chatRecord": chat_record}
+
 
 if __name__ == '__main__':
     app.run(debug = True)

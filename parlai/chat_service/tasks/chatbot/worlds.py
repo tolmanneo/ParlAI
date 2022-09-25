@@ -60,15 +60,13 @@ class MessengerBotChatTaskWorld(World):
             self.agent.observe(
                 {
                     'id': 'World',
-                    'text': '.-.beep. ...-boop. -.beep--. .',
+                    'text': 'is_connected',
                 }
             )
             self.first_time = False
         a = self.agent.act()
         if a is not None:
             if '[DONE]' in a['text']:
-                with open(f'/home/moe/userxx{np.random.randint()}.log', 'a+') as f:
-                    f.write('\n'.join(self.model.turns))
                 self.episodeDone = True
             self.model.observe(a)
             response = self.model.act()

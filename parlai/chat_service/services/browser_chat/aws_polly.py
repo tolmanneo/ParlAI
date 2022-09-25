@@ -11,7 +11,7 @@ dir_path =f"{os.getenv('HOME')}/user_voice"
 if not os.path.exists(dir_path):
     os.mkdir(dir_path)
 
-def get_voice(text):
+def get_text_to_voice(text):
     try:
         # Request speech synthesis
         response = polly_client.synthesize_speech(Text=text, OutputFormat="mp3",
@@ -28,7 +28,7 @@ def get_voice(text):
     except (BotoCoreError, ClientError) as error:
         return f'FAILED'
 
-get_voice('rock and roll')
+#get_voice('rock and roll')
 # for voice in voices:
 #     a = get_voice('This is a text for text to speech. A little hard a little soft but always on point',
 #                 voice)
