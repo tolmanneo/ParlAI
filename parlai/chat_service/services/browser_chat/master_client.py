@@ -6,16 +6,18 @@ from aws_transcribe import get_voice_to_text
 from aws_polly import get_text_to_voice
 from utils import get_chat_record, get_unused_port
 import time
-from constants import MAX_CLIENT_IDLE_TIME, BOT_NAME, HISTORY_DIR
+from constants import MAX_CLIENT_IDLE_TIME, BOT_NAME, HISTORY_DIR, NLP_PORT
 from pathlib import Path
 
 app = Flask(__name__)
 
 # user_id: port, timestamp_latest_update
 active_userid_port = {}
+print(Path(HISTORY_DIR).exists())
+if not Path(HISTORY_DIR).exists():
+    Path(HISTORY_DIR).mkdir(parents=True, exist_ok=True)
 
 # run a cron job every xxx min to clear up idle users
-
 @app.cli.command()
 def scheduled():
     ts = time()
@@ -26,7 +28,7 @@ def scheduled():
                          json={'text': '[DONE]'})
 
 
-@app.route('client/talktoai', methods = ['POST'])
+@app.route('/client/talktoai', methods = ['POST'])
 def talktoai():
     # form request
     user_id = request.json['userId']
@@ -40,7 +42,7 @@ def talktoai():
 
     if not active_userid_port.get(user_id, None):
         port = get_unused_port()
-        Popen(['python', 'client.py', '--port', '10002', '--serving-port', str(port)])
+        Popen(['python', 'client.py', '--port', f'{NLP_PORT}', '--serving-port', str(port)])
         active_userid_port[user_id] = port
         time.sleep(0.5)
     else:
@@ -67,14 +69,14 @@ def talktoai():
 
     with open(Path(HISTORY_DIR)/f'{user_id}.txt', 'a+') as f:
         # write user
-        f.writeline(f'{user_dt}{user_id}|{user_text}|{user_voice}')
+        f.write(f'{user_dt}{user_id}|{user_text}|{user_voice}\n')
         # write bot
-        f.writeline(f'{ai_dt}{BOT_NAME}|{ai_text}|{ai_voice}')
+        f.write(f'{ai_dt}{BOT_NAME}|{ai_text}|{ai_voice}]n')
 
     return result
 
 
-@app.route('client/retrievehistory', methods = ['GET'])
+@app.route('/client/retrievehistory', methods = ['GET'])
 def retrievehistory():
     user_id = request.json['userId']
     data_number = request.json.get('dataNumber', 0)

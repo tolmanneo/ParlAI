@@ -1,6 +1,7 @@
 MAX_CLIENT_IDLE_TIME = 60 # 1 min
 MAX_CHAT_HISTORY = 20
 BOT_NAME = 'AI'
-HISTORY_DIR = '~/chat_history'
+HISTORY_DIR = '/home/moe/chat_history'
 SPEAKER_SELF = 'RoboChoom'
 SPEAKER_OTHER = 'Human'
+NLP_PORT = 10002

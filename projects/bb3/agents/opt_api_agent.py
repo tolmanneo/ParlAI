@@ -22,7 +22,7 @@ from projects.safety_bench.utils.wrapper_loading import register_model_wrapper
 from projects.bb3.agents.module import Module
 import projects.bb3.prompts as PROMPT
 from projects.bb3.agents.utils import APIUtils
-from parlai.chat_service.services.browser_chat.constants import SPEAKER_SELF, SPEAKER_OTHER, MAX_CHAT_HISTORY, BOT_NAME
+from parlai.chat_service.services.browser_chat.constants import SPEAKER_SELF, SPEAKER_OTHER, MAX_CHAT_HISTORY, BOT_NAME, HISTORY_DIR
 
 PROMPTS = {
     "convai2": "A conversation between two persons. Person 2's personality is described.\n\n",
@@ -32,6 +32,8 @@ PROMPTS = {
 
 
 class SimplePromptHistory(object):
+    SPEAKER_SELF = SPEAKER_SELF
+    SPEAKER_OTHER = SPEAKER_OTHER
 
     def __init__(self,
         prompt: Optional[str] = None,
@@ -360,7 +362,7 @@ class SimpleOPTAgent(Agent):
             )
         else:
             self.dictionary = shared['dictionary']
-        self.history = SimplePromptHistory(prompt=prompt, dictionary=self.dictionary)
+        self.history = SimplePromptHistory(prompt=prompt, dictionary=self.dictionary, user_id=None)
         self.request_delay = opt.get('request_delay', 0.5)
 
 
