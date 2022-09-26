@@ -32,6 +32,6 @@ def get_chat_record(user_id, data_number):
                 if voice:
                     chat_line['voice'] = voice
                 else:
-                    chat_line['voice'] = text
+                    chat_line['text'] = text
                 chat_record.append(chat_line)
         return chat_record
