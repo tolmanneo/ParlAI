@@ -3,7 +3,7 @@ import boto3
 from botocore.exceptions import BotoCoreError, ClientError
 from uuid import uuid4
 import os
-from constants import AWS_S3_VOICE_OUTPUT, LOCAL_VOICE_OUTPUT, AWS_VOICE_NAME
+from parlai.chat_service.services.browser_chat.constants import AWS_S3_VOICE_OUTPUT, LOCAL_VOICE_OUTPUT, AWS_VOICE_NAME
 
 polly_client = boto3.client('polly', region_name = 'us-west-2')
 s3_client = boto3.client('s3', region_name = 'us-west-2')

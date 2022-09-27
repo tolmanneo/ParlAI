@@ -1,5 +1,5 @@
 from pathlib import Path
-from constants import HISTORY_DIR
+from parlai.chat_service.services.browser_chat.constants import HISTORY_DIR
 import socket
 
 

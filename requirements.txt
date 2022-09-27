@@ -60,3 +60,6 @@ contractions~=0.1.72
 fsspec~=2022.2.0
 flask
 boto3
+transformers
+scipy
+Flask-APScheduler

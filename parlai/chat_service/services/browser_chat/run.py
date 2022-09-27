@@ -12,7 +12,7 @@ Used to run the browser chat server.
 from parlai.core.params import ParlaiParser
 from parlai.chat_service.services.browser_chat.browser_manager import BrowserManager
 import parlai.chat_service.utils.config as config_utils
-
+from parlai.chat_service.services.browser_chat.constants import WEBSOCKET_PORT
 
 SERVICE_NAME = 'Browser'
 
@@ -28,7 +28,7 @@ def setup_args():
     parser.add_chatservice_args()
     parser_grp = parser.add_argument_group('Browser Chat')
     parser_grp.add_argument(
-        '--port', default=35496, type=int, help='Port to run the browser chat server'
+        '--port', default=WEBSOCKET_PORT, type=int, help='Port to run the browser chat server'
     )
     return parser.parse_args()
 
